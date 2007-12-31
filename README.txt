@@ -2,7 +2,7 @@ DESCRIPTION
 ===========
 A site holder may wish to display comments for a certain node type in a separate talk tab
 
-This module is designed to work with Drupal 5.x.
+This module works with Drupal 6.x.
 
 INSTALLATION
 ============
@@ -17,3 +17,4 @@ INSTALLATION
 AUTHOR
 ======
 rötzi (http://drupal.tschannen.net/wiki/talk))
+Port to Drupal 6 by cwgordon7 (http://cwgordon.com/)
