@@ -7,6 +7,7 @@
  *   $comment_link represents an "add new comment" link.
  *   $add_comments is TRUE if the user has permission to add comments.
  *   $redisplay is TRUE if the "add new comment" link should be redisplayed at the bottom of the page.
+ *   $title represents the title of the talk page. Defaults to "Talk".
  */
 ?>
 <p>

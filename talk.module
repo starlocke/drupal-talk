@@ -24,14 +24,40 @@ function talk_help($path, $arg) {
 function talk_menu() {
   $items = array();
   $items['node/%node/talk'] = array(
-    'title' => t('Talk'),
+    'title' => talk_title(),
     'page callback' => 'talk_handle',
     'page arguments' => array(1),
-	'access callback' => 'user_access',
+    'access callback' => 'user_access',
     'access arguments' => array('access comments'),
     'type' => MENU_LOCAL_TASK,
   );
+  $items['admin/settings/talk'] = array(
+    'title' => t('Talk page'),
+    'description' => t('Configure settings for the talk page.'),
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('talk_admin_form'),
+  );
   return $items;
+}
+
+/**
+ * Menu call back for admin form.
+ */
+function talk_admin_form() {
+  $form = array();
+  $form['talk_title'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Title of the "talk" page'),
+    '#default_value' => talk_title(),
+  );
+  return system_settings_form($form);
+}
+
+function talk_title($title = NULL) {
+  if (is_null($title)) {
+    return variable_get('talk_title', t('Talk'));
+  }
+  variable_set('talk_title', $title);
 }
 
 /**
@@ -70,9 +96,10 @@ function talk_nodeapi(&$node, $op) {
  */
 function talk_link($type, $node = null, $teaser = false) {
   if ($type == 'node' && talk_activated($node->type) && user_access('access comments')) {
+    $result = array();
     if ($node->comment_count) {
       $result['talk_view'] = array(
-        'title' => t('Talk page (!nr comments)', array('!nr' => $node->comment_count)),
+        'title' => t('!title page (!nr comments)', array('!nr' => $node->comment_count, '!title' => talk_title())),
         'href' => 'node/'. $node->nid .'/talk',
       );
     }
@@ -103,6 +130,13 @@ function talk_form_alter(&$form, $form_state, $form_id) {
 }
 
 /**
+ * Implementation of hook_link_alter().
+ */
+function talk_link_alter(&$links, $node) {
+  unset($links['comment_add']);
+}
+
+/**
  * Implementation of hook_form_alter()
  * Changing the destination to the talk page after posting a comment
  */
@@ -117,7 +151,7 @@ function talk_comment($a1, $op) {
  */
 function talk_activated($node_type, $value = null) {
   if (is_null($value)) {
-    return variable_get('comment_talk_'. $node_type, false);
+    return variable_get('comment_talk_'. $node_type, FALSE);
   }
   variable_set('comment_talk_'. $node_type, $value);
 }
@@ -155,6 +189,7 @@ function talk_theme() {
 function template_preprocess_talkpage(&$variables) {
   $add_comments = $variables['add_comments'];
   $node = $variables['node'];
+  $variables['title'] = talk_title();
   $comment_link = '';
   if ($add_comments) {
     $comment_link = l(t('Add new comment'), "comment/reply/$node->nid");
