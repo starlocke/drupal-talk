@@ -17,4 +17,4 @@ INSTALLATION
 AUTHOR
 ======
 rötzi (http://drupal.tschannen.net/wiki/talk))
-Port to Drupal 6 by cwgordon7 (http://cwgordon.com/)
+Currently maintained by cwgordon7 (http://cwgordon.com/)

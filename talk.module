@@ -4,7 +4,6 @@
 /**
  * @file
  * Comments are displayed in a separate 'talk' tab, for node types you wish
- * Made for Drupal 5.x
  */
 
 /**
@@ -24,12 +23,13 @@ function talk_help($path, $arg) {
 function talk_menu() {
   $items = array();
   $items['node/%node/talk'] = array(
-    'title' => talk_title(),
+    'title callback' => 'talk_menu_title',
     'page callback' => 'talk_handle',
     'page arguments' => array(1),
-    'access callback' => 'user_access',
-    'access arguments' => array('access comments'),
+    'access callback' => '_talk_access',
+    'access arguments' => array('access comments', 1),
     'type' => MENU_LOCAL_TASK,
+    'weight' => 1,
   );
   $items['admin/settings/talk'] = array(
     'title' => t('Talk page'),
@@ -38,6 +38,13 @@ function talk_menu() {
     'page arguments' => array('talk_admin_form'),
   );
   return $items;
+}
+
+/**
+ * Helper item for talk_menu: access callback.
+ */
+function _talk_access($perm, $node) {
+  return (user_access($perm) && talk_activated($node->type) && $node->nid && _talk_node_comment_value($node));
 }
 
 /**
@@ -61,17 +68,19 @@ function talk_title($title = NULL) {
 }
 
 /**
+ * Menu callback for the title, as it would automatically pass args in, which would be bad.
+ */
+function talk_menu_title() {
+  return talk_title();
+}
+
+/**
  * Menu callback for talk page.
  */
 function talk_handle($node) {
-  if ($node->nid && talk_activated($node->type) && _talk_node_comment_value($node)) {
-    drupal_set_title($node->title);
-    $add_comments = _talk_node_comment_value($node) == COMMENT_NODE_READ_WRITE && user_access('post comments');
-    return theme('talkpage', $node, $add_comments);
-  }
-  else {
-    return drupal_not_found();
-  }
+  drupal_set_title($node->title);
+  $add_comments = _talk_node_comment_value($node) == COMMENT_NODE_READ_WRITE && user_access('post comments');
+  return theme('talkpage', $node, $add_comments);
 }
 
 /**
@@ -103,7 +112,7 @@ function talk_link($type, $node = null, $teaser = false) {
         'href' => 'node/'. $node->nid .'/talk',
       );
     }
-    else if (_talk_node_comment_value($node) == COMMENT_NODE_READ_WRITE) {
+    elseif (_talk_node_comment_value($node) == COMMENT_NODE_READ_WRITE) {
       $result['talk_view'] = array(
         'title' => t('Add new comment'),
         'href' => "comment/reply/$node->nid",
@@ -137,19 +146,18 @@ function talk_link_alter(&$links, $node) {
 }
 
 /**
- * Implementation of hook_form_alter()
+ * Implementation of hook_comment()
  * Changing the destination to the talk page after posting a comment
  */
-function talk_comment($a1, $op) {
+function talk_comment($comment, $op) {
   if ($op == 'insert' || $op == 'update') {
-    $_REQUEST['destination'] = 'node/'. $a1['nid'] .'/talk';
+    $_REQUEST['destination'] = 'node/'. $comment['nid'] .'/talk';
   }
 } 
-
 /**
  * Is talk page option activated for node tpye?
  */
-function talk_activated($node_type, $value = null) {
+function talk_activated($node_type, $value = NULL) {
   if (is_null($value)) {
     return variable_get('comment_talk_'. $node_type, FALSE);
   }
@@ -162,10 +170,6 @@ function talk_activated($node_type, $value = null) {
 function _talk_node_comment_value(&$node) {
   return isset($node->comment_original_value) ? $node->comment_original_value : $node->comment;
 }
-
-/*
- * Theme functions
- */
  
  /**
   * Implementation of hook_theme().
@@ -185,6 +189,7 @@ function talk_theme() {
  *   node whose talk page is displayed
  * @param $add_comments
  *   boolean which indicates if the adding of comments is allowed for current user
+ * @ingroup themeable
  */
 function template_preprocess_talkpage(&$variables) {
   $add_comments = $variables['add_comments'];
