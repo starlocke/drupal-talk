@@ -149,9 +149,13 @@ function talk_link_alter(&$links, $node) {
  * Implementation of hook_comment()
  * Changing the destination to the talk page after posting a comment
  */
-function talk_comment($comment, $op) {
+function talk_comment($a1, $op) {
   if ($op == 'insert' || $op == 'update') {
-    $_REQUEST['destination'] = 'node/'. $comment['nid'] .'/talk';
+    $nid = $a1['nid'];
+    $node = node_load($nid);
+    if (talk_activated($node->type)) {
+      $_REQUEST['destination'] = 'node/'. $a1['nid'] .'/talk';
+    }
   }
 } 
 /**
