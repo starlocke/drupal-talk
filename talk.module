@@ -108,7 +108,7 @@ function talk_link($type, $node = null, $teaser = false) {
     $result = array();
     if ($node->comment_count) {
       $result['talk_view'] = array(
-        'title' => t('!title page (!nr comments)', array('!nr' => $node->comment_count, '!title' => talk_title())),
+        'title' => t('@title page (@nr comments)', array('@nr' => $node->comment_count, '@title' => talk_title())),
         'href' => 'node/'. $node->nid .'/talk',
       );
     }
@@ -142,7 +142,9 @@ function talk_form_alter(&$form, $form_state, $form_id) {
  * Implementation of hook_link_alter().
  */
 function talk_link_alter(&$links, $node) {
-  unset($links['comment_add']);
+  if (talk_activated($node->type)) {
+    unset($links['comment_add']);
+  }
 }
 
 /**
