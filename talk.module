@@ -27,7 +27,7 @@ function talk_menu() {
     'page callback' => 'talk_handle',
     'page arguments' => array(1),
     'access callback' => '_talk_access',
-    'access arguments' => array('access comments', 1),
+    'access arguments' => array(1),
     'type' => MENU_LOCAL_TASK,
     'weight' => 1,
   );
@@ -36,6 +36,7 @@ function talk_menu() {
     'description' => t('Configure settings for the talk page.'),
     'page callback' => 'drupal_get_form',
     'page arguments' => array('talk_admin_form'),
+    'access arguments' => array('administer site configuration'),
   );
   return $items;
 }
@@ -43,8 +44,8 @@ function talk_menu() {
 /**
  * Helper item for talk_menu: access callback.
  */
-function _talk_access($perm, $node) {
-  return (user_access($perm) && talk_activated($node->type) && $node->nid && _talk_node_comment_value($node));
+function _talk_access($node) {
+  return ($node->nid && _talk_node_comment_value($node) && talk_activated($node->type) && user_access('access comments') && node_access('view', $node));
 }
 
 /**
@@ -78,7 +79,7 @@ function talk_menu_title() {
  * Menu callback for talk page.
  */
 function talk_handle($node) {
-  drupal_set_title($node->title);
+  drupal_set_title(check_plain($node->title));
   $add_comments = _talk_node_comment_value($node) == COMMENT_NODE_READ_WRITE && user_access('post comments');
   return theme('talkpage', $node, $add_comments);
 }
@@ -103,8 +104,8 @@ function talk_nodeapi(&$node, $op) {
 /**
  * Implementation of hook_link().
  */
-function talk_link($type, $node = null, $teaser = false) {
-  if ($type == 'node' && talk_activated($node->type) && user_access('access comments')) {
+function talk_link($type, $node = NULL, $teaser = FALSE) {
+  if ($type == 'node' && talk_activated($node->type) && user_access('access comments') && _talk_node_comment_value($node)) {
     $result = array();
     if ($node->comment_count) {
       $result['talk_view'] = array(
@@ -112,7 +113,7 @@ function talk_link($type, $node = null, $teaser = false) {
         'href' => 'node/'. $node->nid .'/talk',
       );
     }
-    elseif (_talk_node_comment_value($node) == COMMENT_NODE_READ_WRITE) {
+    if (_talk_node_comment_value($node) == COMMENT_NODE_READ_WRITE) {
       $result['talk_view'] = array(
         'title' => t('Add new comment'),
         'href' => "comment/reply/$node->nid",
@@ -177,9 +178,9 @@ function _talk_node_comment_value(&$node) {
   return isset($node->comment_original_value) ? $node->comment_original_value : $node->comment;
 }
  
- /**
-  * Implementation of hook_theme().
-  */
+/**
+ * Implementation of hook_theme().
+ */
 function talk_theme() {
   return array(
     'talkpage' => array(
