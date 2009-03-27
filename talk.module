@@ -98,13 +98,13 @@ function talk_link($type, $node = NULL, $teaser = FALSE) {
   if ($type == 'node' && talk_activated($node->type) && user_access('access comments') && _talk_node_comment_value($node)) {
     $result = array();
     if ($node->comment_count) {
-      $result['talk_view'] = array(
+      $result['comment_comments'] = array(
         'title' => t('@title page (@nr comments)', array('@nr' => $node->comment_count, '@title' => talk_title())),
         'href' => 'node/'. $node->nid .'/talk',
       );
     }
     if (_talk_node_comment_value($node) == COMMENT_NODE_READ_WRITE) {
-      $result['talk_add'] = array(
+      $result['comment_add'] = array(
         'title' => t('Add new comment'),
         'href' => "comment/reply/$node->nid",
       );
