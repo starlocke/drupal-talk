@@ -23,7 +23,7 @@ function talk_help($path, $arg) {
 function talk_menu() {
   $items = array();
   $items['node/%node/talk'] = array(
-    'title callback' => 'talk_menu_title',
+    'title callback' => 'talk_title',
     'page callback' => 'talk_handle',
     'page arguments' => array(1),
     'access callback' => '_talk_access',
@@ -61,25 +61,15 @@ function talk_admin_form() {
   return system_settings_form($form);
 }
 
-function talk_title($title = NULL) {
-  if (is_null($title)) {
-    return variable_get('talk_title', t('Talk'));
-  }
-  variable_set('talk_title', $title);
-}
-
-/**
- * Menu callback for the title, as it would automatically pass args in, which would be bad.
- */
-function talk_menu_title() {
-  return talk_title();
+function talk_title() {
+  return variable_get('talk_title', t('Talk'));
 }
 
 /**
  * Menu callback for talk page.
  */
 function talk_handle($node) {
-  drupal_set_title(check_plain($node->title));
+  drupal_set_title(t('@title page for @node', array('@title' => talk_title(), '@node' => $node->title)));
   $add_comments = _talk_node_comment_value($node) == COMMENT_NODE_READ_WRITE && user_access('post comments');
   return theme('talkpage', $node, $add_comments);
 }
@@ -114,7 +104,7 @@ function talk_link($type, $node = NULL, $teaser = FALSE) {
       );
     }
     if (_talk_node_comment_value($node) == COMMENT_NODE_READ_WRITE) {
-      $result['talk_view'] = array(
+      $result['talk_add'] = array(
         'title' => t('Add new comment'),
         'href' => "comment/reply/$node->nid",
       );
@@ -164,11 +154,8 @@ function talk_comment($a1, $op) {
 /**
  * Is talk page option activated for node tpye?
  */
-function talk_activated($node_type, $value = NULL) {
-  if (is_null($value)) {
-    return variable_get('comment_talk_'. $node_type, FALSE);
-  }
-  variable_set('comment_talk_'. $node_type, $value);
+function talk_activated($node_type) {
+  return variable_get('comment_talk_'. $node_type, FALSE);
 }
 
 /**
@@ -191,11 +178,12 @@ function talk_theme() {
 }
 
 /**
- * Theme talkpage for node
+ * Template preprocess function.
+ *
  * @param $node
- *   node whose talk page is displayed
+ *   The node whose talk page is being displayed.
  * @param $add_comments
- *   boolean which indicates if the adding of comments is allowed for current user
+ *   Boolean which indicates if adding comments is allowed for current user.
  * @ingroup themeable
  */
 function template_preprocess_talkpage(&$variables) {
@@ -204,7 +192,12 @@ function template_preprocess_talkpage(&$variables) {
   $variables['title'] = talk_title();
   $comment_link = '';
   if ($add_comments) {
-    $comment_link = l(t('Add new comment'), "comment/reply/$node->nid");
+    if (variable_get('comment_form_location_'. $node->type, COMMENT_FORM_SEPARATE_PAGE) == COMMENT_FORM_SEPARATE_PAGE) {
+      $comment_link = l(t('Add new comment'), "comment/reply/$node->nid");
+    }
+    elseif ($node->comment_count > 1) {
+      $comment_link = l(t('Add new comment'), check_plain($_GET['q']), array('fragment' => 'comment-form'));
+    }
   }
   $comments = comment_render($node, 0);
   $redisplay = FALSE;

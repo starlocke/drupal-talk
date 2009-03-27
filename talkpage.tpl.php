@@ -10,12 +10,14 @@
  *   $title represents the title of the talk page. Defaults to "Talk".
  */
 ?>
-<p>
-<?php print $comment_link; ?>
-</p>
-<br />
+<?php if ($comment_link): ?>
+  <p>
+    <?php print $comment_link; ?>
+  </p>
+  <br />
+<?php endif; ?>
 <?php print $comments; ?>
-<?php if ($redisplay): ?>
+<?php if ($comment_link && $redisplay): ?>
   <p>
   <?php print $comment_link; ?>
   </p>
