@@ -45,7 +45,7 @@ function talk_menu() {
  * Helper item for talk_menu: access callback.
  */
 function _talk_access($node) {
-  return ($node->nid && _talk_node_comment_value($node) && talk_activated($node->type) && user_access('access comments') && node_access('view', $node));
+  return ($node->nid && _talk_node_comment_value($node) && talk_activated($node->type) && user_access('access comments') && node_access('view', $node) && $node->comment_count);
 }
 
 /**
