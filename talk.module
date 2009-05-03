@@ -130,15 +130,6 @@ function talk_form_alter(&$form, $form_state, $form_id) {
 }
 
 /**
- * Implementation of hook_link_alter().
- */
-function talk_link_alter(&$links, $node) {
-  if (talk_activated($node->type)) {
-    unset($links['comment_add']);
-  }
-}
-
-/**
  * Implementation of hook_comment()
  * Changing the destination to the talk page after posting a comment
  */
