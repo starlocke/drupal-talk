@@ -2,8 +2,8 @@
 // $Id$
 
 class TalkTests extends DrupalWebTestCase {
-  var $_talkType = '';
-  var $_talkTitle = '';
+  var $talkType = '';
+  var $talkTitle = '';
 
   /**
    * Implementation of get_info for information. This will be displayed to the user.
@@ -20,15 +20,12 @@ class TalkTests extends DrupalWebTestCase {
    * Implementation of setUp. This will be run when we're setting up for the tests automatically.
    */
   function setUp() {
-    parent::setUp();
-
     // Enable the talk module and its dependencies.
-    $this->drupalModuleEnable('comment');
-    $this->drupalModuleEnable('talk');
+    parent::setUp('comment', 'talk');
 
     // Create a node type, and enable the talk module for that node type.
     $node_type = $this->drupalCreateContentType();
-    $this->_talkType = $node_type->type;
+    $this->talkType = $node_type->type;
 
     // This will automatically be reverted to whatever it was before the test took place after the test is over.
     variable_set('comment_talk_'. $node_type->type, TRUE);
@@ -38,7 +35,7 @@ class TalkTests extends DrupalWebTestCase {
 
     // Set the talk title to something unique.
     $talk_title = $this->randomName();
-    $this->_talkTitle = $talk_title;
+    $this->talkTitle = $talk_title;
     variable_set('talk_title', $talk_title);
 
     // Create and login a user with the appropriate permissions.
@@ -54,7 +51,7 @@ class TalkTests extends DrupalWebTestCase {
   function testTalkCommentAppears() {
     // Create a node to test with.
     $settings = array();
-    $settings['type'] = $this->_talkType;
+    $settings['type'] = $this->talkType;
     $node = $this->drupalCreateNode($settings);
 
     // Navigate to the node page.
@@ -74,14 +71,6 @@ class TalkTests extends DrupalWebTestCase {
     // Make the actual assertions here.
     $this->assertText($subject, t('Make sure that the subject of the comment appears'));
     $this->assertText($comment, t('Make sure the body of the comment appears'));
-    $this->assertText($this->_talkTitle, t('Make sure the talk title appears'));
-  }
-
-  /**
-   * Implementation of tearDown. This will be run when we're finished with our tests.
-   */
-  function tearDown() {
-    // We don't actually need to do anything. But if we wanted to, we could!
-    parent::tearDown();
+    $this->assertText($this->talkTitle, t('Make sure the talk title appears @title', array('@title' => str_replace('!count', 1, $this->talkTitle))));
   }
 }
