@@ -104,10 +104,16 @@ function talk_link($type, $node = NULL, $teaser = FALSE) {
       );
     }
     if (_talk_node_comment_value($node) == COMMENT_NODE_READ_WRITE) {
-      $result['comment_add'] = array(
-        'title' => t('Add new comment'),
-        'href' => "comment/reply/$node->nid",
-      );
+      if (user_access('post comments')) {
+        $result['comment_add'] = array(
+          'title' => t('Add new comment'),
+          'href' => "comment/reply/$node->nid",
+        );
+      }
+      else {
+        $result['comment_forbidden']['title'] = theme('comment_post_forbidden', $node);
+        $result['comment_forbidden']['html'] = TRUE;
+      }
     }
     return $result;
   }
