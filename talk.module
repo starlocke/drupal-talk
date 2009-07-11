@@ -130,8 +130,8 @@ function talk_form_alter(&$form, $form_state, $form_id) {
 }
 
 /**
- * Implementation of hook_comment()
- * Changing the destination to the talk page after posting a comment
+ * Implementation of hook_comment().
+ * Changing the destination to the talk page after posting a comment.
  */
 function talk_comment($a1, $op) {
   if ($op == 'insert' || $op == 'update') {
@@ -141,7 +141,7 @@ function talk_comment($a1, $op) {
       $_REQUEST['destination'] = 'node/'. $a1['nid'] .'/talk';
     }
   }
-} 
+}
 /**
  * Is talk page option activated for node tpye?
  */
@@ -155,7 +155,7 @@ function talk_activated($node_type) {
 function _talk_node_comment_value(&$node) {
   return isset($node->comment_original_value) ? $node->comment_original_value : $node->comment;
 }
- 
+
 /**
  * Implementation of hook_theme().
  */

@@ -1,6 +1,9 @@
-<?php /* $Id$ */ ?>
+<?php // $Id$ ?>
 <?php
 /**
+ * @file
+ * Overridable template file for talk page.
+ *
  * Available variables:
  *   $node represents the node whose comments we're displaying.
  *   $comments represents the rendered comments.
