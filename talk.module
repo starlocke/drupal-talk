@@ -205,3 +205,35 @@ function template_preprocess_talkpage(&$variables) {
   $variables['comment_link'] = $comment_link;
   $variables['comments'] = $comments;
 }
+
+/**
+ * Implementation of hook_token_list(). Documents the individual
+ * tokens handled by the module.
+ */
+function talk_token_list($type = 'all') {
+  $tokens = array();
+  if ($type == 'comment' || $type == 'all') {
+    $tokens['comment']['comment-talk-url'] = t('The comment view url (Talk compatible).');
+  }
+  return $tokens;
+}
+
+/**
+ * Implementation of hook_token_values().
+ */
+function talk_token_values($type, $object = NULL, $options = array()) {
+  switch ($type) {
+    case 'comment':
+      if ($comment = (object)$object) {
+        $talk = '';
+        $node = node_load($comment->nid);
+        if (talk_activated($node->type)) {
+          $talk = '/talk';
+        }
+        $values['comment-talk-url'] = url('node/'. $comment->nid . $talk, array('fragment' => 'comment-'. $comment->cid, 'absolute' => TRUE));
+        return $values;
+      }
+      break;
+  }
+}
+
