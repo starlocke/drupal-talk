@@ -125,7 +125,7 @@ function talk_link($type, $node = NULL, $teaser = FALSE) {
 function talk_form_alter(&$form, $form_state, $form_id) {
   // Add option to comment options of node types.
   if ($form_id == 'node_type_form' && isset($form['identity']['type']) && module_exists('comment')) {
-    $form['workflow']['comment_talk'] = array(
+    $form['comment']['comment_talk'] = array(
       '#type' => 'checkbox',
       '#title' => t('Display comments on separate talk page'),
       '#prefix' => '<strong>'. t('Talk pages:') .'</strong>',

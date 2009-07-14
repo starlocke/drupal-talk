@@ -12,7 +12,7 @@ INSTALLATION
 3. Under Administer >> Content >> Content types, click "edit" next to the
    modules on which you wish to enable the talk tab.
 4. Enable "Display comments on separate talk page" checkbox (found under the
-   "workflow options" fieldset) on each content type that you'd like to have a
+   "comment settings" fieldset) on each content type that you'd like to have a
    talk tab.
 5. If you'd like to change the title of the talk page (for example, to
    "discussion"), go to Administer >> Settings >> Talk, and enter the preferred
