@@ -97,25 +97,49 @@ function talk_nodeapi(&$node, $op) {
 function talk_link($type, $node = NULL, $teaser = FALSE) {
   if ($type == 'node' && talk_activated($node->type) && user_access('access comments') && _talk_node_comment_value($node)) {
     $result = array();
+
+    // If there are comments, display "Talk page (X comments)" link to talk page.
     if ($node->comment_count) {
-      $result['comment_comments'] = array(
+      $result['talk_comments'] = array(
         'title' => t('@title page (@nr comments)', array('@nr' => $node->comment_count, '@title' => talk_title())),
         'href' => 'node/'. $node->nid .'/talk',
+        'attributes' => array(
+          'title' => t('Jump to the first comment of this posting.'),
+        ),
       );
     }
-    if (_talk_node_comment_value($node) == COMMENT_NODE_READ_WRITE) {
+    // If no comments exist, add the "Add new comment" link.
+    elseif (_talk_node_comment_value($node) == COMMENT_NODE_READ_WRITE) {
       if (user_access('post comments')) {
-        $result['comment_add'] = array(
+        $result['talk_add'] = array(
           'title' => t('Add new comment'),
-          'href' => "comment/reply/$node->nid",
+          'fragment' => 'comment-form',
         );
+        if (variable_get('comment_form_location_'. $node->type, COMMENT_FORM_SEPARATE_PAGE) == COMMENT_FORM_SEPARATE_PAGE) {
+          $result['talk_add']['href'] = 'comment/reply/'. $node->nid;
+        }
+        else {
+          $result['talk_add']['href'] = 'node/'. $node->nid .'/talk';
+        }
       }
       else {
-        $result['comment_forbidden']['title'] = theme('comment_post_forbidden', $node);
-        $result['comment_forbidden']['html'] = TRUE;
+        $result['talk_forbidden']['title'] = theme('comment_post_forbidden', $node);
+        $result['talk_forbidden']['html'] = TRUE;
       }
     }
+
     return $result;
+  }
+}
+
+/**
+ * Implementation of hook_link_alter().
+ */
+function talk_link_alter(&$links, $node) {
+  // Removes all "Add a comment" links from the comment form page.
+  if (arg(0) == 'comment' && arg(1) == 'reply') {
+    unset($links['comment_add']);
+    unset($links['talk_add']);
   }
 }
 
@@ -148,6 +172,7 @@ function talk_comment($a1, $op) {
     }
   }
 }
+
 /**
  * Is talk page option activated for node tpye?
  */
@@ -180,7 +205,7 @@ function talk_theme() {
  * @param $node
  *   The node whose talk page is being displayed.
  * @param $add_comments
- *   Boolean which indicates if adding comments is allowed for current user.
+ *   Boolean that indicates if adding comments is allowed for current user.
  * @ingroup themeable
  */
 function template_preprocess_talkpage(&$variables) {
@@ -188,19 +213,20 @@ function template_preprocess_talkpage(&$variables) {
   $node = $variables['node'];
   $variables['title'] = talk_title();
   $comment_link = '';
+  $redisplay = FALSE;
+
   if ($add_comments) {
     if (variable_get('comment_form_location_'. $node->type, COMMENT_FORM_SEPARATE_PAGE) == COMMENT_FORM_SEPARATE_PAGE) {
-      $comment_link = l(t('Add new comment'), "comment/reply/$node->nid");
+      $comment_link = l(t('Add new comment'), 'comment/reply/'. $node->nid, array('fragment' => 'comment-form'));
     }
     elseif ($node->comment_count > 1) {
       $comment_link = l(t('Add new comment'), check_plain($_GET['q']), array('fragment' => 'comment-form'));
+      $redisplay = TRUE;
     }
   }
+
   $comments = comment_render($node, 0);
-  $redisplay = FALSE;
-  if ($node->comment_count > 1 && $add_comments) {
-    $redisplay = TRUE;
-  }
+
   $variables['redisplay'] = $redisplay;
   $variables['comment_link'] = $comment_link;
   $variables['comments'] = $comments;
