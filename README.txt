@@ -14,9 +14,9 @@ INSTALLATION
 4. Enable "Display comments on separate talk page" checkbox (found under the
    "comment settings" fieldset) on each content type that you'd like to have a
    talk tab.
-5. If you'd like to change the title of the talk page (for example, to
-   "discussion"), go to Administer >> Settings >> Talk, and enter the preferred
-   title for the talk tab.
+5. If you'd like to change the text used in a variety of places go to 
+   Administer >> Settings >> Talk.  If the Token module is installed you can
+   use tokens for nodes, the current user, or the site.
 
 AUTHOR
 ======

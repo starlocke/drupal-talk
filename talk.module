@@ -24,6 +24,7 @@ function talk_menu() {
   $items = array();
   $items['node/%node/talk'] = array(
     'title callback' => 'talk_title',
+    'title arguments' => array(1),
     'page callback' => 'talk_handle',
     'page arguments' => array(1),
     'access callback' => '_talk_access',
@@ -53,23 +54,51 @@ function _talk_access($node) {
  */
 function talk_admin_form() {
   $form = array();
-  $form['talk_title'] = array(
+  $form['talk_page'] = array(
     '#type' => 'textfield',
     '#title' => t('Title of the "talk" page'),
-    '#default_value' => talk_title(),
+    '#default_value' => talk_title(NULL, 'page'),
+    '#description' => t('If token is enabled you can use tokens like [title] or [nid]')
   );
+  $form['talk_link'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Link from the node "links" to the "talk" page'),
+    '#default_value' => talk_title(NULL, 'link'),
+    '#description' => t('If token is enabled you can use tokens like [title] or [nid]. Leave blank to disable.')
+  );
+  $form['talk_tab'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Link from the node "tab" to the "talk" page'),
+    '#default_value' => talk_title(NULL, 'tab'),
+    '#description' => t('If token is enabled you can use tokens like [title] or [nid].')
+  );
+
   return system_settings_form($form);
 }
 
-function talk_title() {
-  return variable_get('talk_title', t('Talk'));
+/**
+ * Provide an appropriate title for the context.
+ *
+ * @param object $node
+ *   Optional node object.
+ * @param string $type
+ *   Optional string for context: tab, page, link.
+ * @return string
+ */
+function talk_title($node = NULL, $type = 'tab') {
+  $title = variable_get('talk_'. $type, t('Talk'));
+  if (module_exists('token') && isset($node->nid)) {
+    global $user;
+    $title = token_replace_multiple($title, array('global' => NULL, 'user' => $user, 'node' => $node));
+  }
+  return check_plain($title);
 }
 
 /**
  * Menu callback for talk page.
  */
 function talk_handle($node) {
-  drupal_set_title(t('@title page for @node', array('@title' => talk_title(), '@node' => $node->title)));
+  drupal_set_title(talk_title($node, 'page'));
   $add_comments = _talk_node_comment_value($node) == COMMENT_NODE_READ_WRITE && user_access('post comments');
   return theme('talkpage', $node, $add_comments);
 }
@@ -100,13 +129,16 @@ function talk_link($type, $node = NULL, $teaser = FALSE) {
 
     // If there are comments, display "Talk page (X comments)" link to talk page.
     if ($node->comment_count) {
-      $result['talk_comments'] = array(
-        'title' => t('@title page (@nr comments)', array('@nr' => $node->comment_count, '@title' => talk_title())),
-        'href' => 'node/'. $node->nid .'/talk',
-        'attributes' => array(
-          'title' => t('Jump to the first comment of this posting.'),
-        ),
-      );
+      $title = talk_title($node, 'link');
+      if (!empty($title)) {
+        $result['talk_comments'] = array(
+          'title' => $title,
+          'href' => 'node/'. $node->nid .'/talk',
+          'attributes' => array(
+            'title' => t('Jump to the first comment of this posting.'),
+          ),
+        );
+      }
     }
     // If no comments exist, add the "Add new comment" link.
     elseif (_talk_node_comment_value($node) == COMMENT_NODE_READ_WRITE) {
@@ -208,10 +240,10 @@ function talk_theme() {
  *   Boolean that indicates if adding comments is allowed for current user.
  * @ingroup themeable
  */
-function template_preprocess_talkpage(&$variables) {
+function talk_preprocess_talkpage(&$variables) {
   $add_comments = $variables['add_comments'];
   $node = $variables['node'];
-  $variables['title'] = talk_title();
+  $variables['title'] = talk_title($node, 'page');
   $comment_link = '';
   $redisplay = FALSE;
 
