@@ -240,7 +240,7 @@ function talk_theme() {
  *   Boolean that indicates if adding comments is allowed for current user.
  * @ingroup themeable
  */
-function talk_preprocess_talkpage(&$variables) {
+function template_preprocess_talkpage(&$variables) {
   $add_comments = $variables['add_comments'];
   $node = $variables['node'];
   $variables['title'] = talk_title($node, 'page');
