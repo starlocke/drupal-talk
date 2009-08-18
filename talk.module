@@ -46,7 +46,7 @@ function talk_menu() {
  * Helper item for talk_menu: access callback.
  */
 function _talk_access($node) {
-  return ($node->nid && _talk_node_comment_value($node) && talk_activated($node->type) && user_access('access comments') && node_access('view', $node) && $node->comment_count);
+  return ($node->nid && _talk_node_comment_value($node) && talk_activated($node->type) && user_access('access comments') && node_access('view', $node) && (variable_get('talk_page_no_comments', TRUE) || $node->comment_count));
 }
 
 /**
@@ -71,6 +71,11 @@ function talk_admin_form() {
     '#title' => t('Link from the node "tab" to the "talk" page'),
     '#default_value' => talk_title(NULL, 'tab'),
     '#description' => t('If token is enabled you can use tokens like [title] or [nid].')
+  );
+  $form['talk_page_no_comments'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Display a "talk" page if there are no comments?'),
+    '#default_value' => variable_get('talk_page_no_comments', TRUE),
   );
 
   return system_settings_form($form);
