@@ -2,23 +2,17 @@
 // $Id$
 
 class TalkTests extends DrupalWebTestCase {
-  var $talkType = '';
-  var $talkTitle = '';
+  protected $talkType = '';
+  protected $talkTitle = '';
 
-  /**
-   * Implementation of get_info for information. This will be displayed to the user.
-   */
-  function getInfo() {
+  public static function getInfo() {
     return array(
       'name' => t('Basic talk tests'),
       'description' => t('Some basic tests for the talk module, including going to the talk page and making sure the comment shows up.'),
-      'group' => t('Talk tests'),
+      'group' => t('Talk'),
     );
   }
 
-  /**
-   * Implementation of setUp. This will be run when we're setting up for the tests automatically.
-   */
   function setUp() {
     // Enable the talk module and its dependencies.
     parent::setUp('comment', 'talk');
@@ -34,9 +28,8 @@ class TalkTests extends DrupalWebTestCase {
     variable_set('comment_preview_'. $node_type->type, COMMENT_PREVIEW_OPTIONAL);
 
     // Set the talk title to something unique.
-    $talk_title = $this->randomName();
-    $this->talkTitle = $talk_title;
-    variable_set('talk_title', $talk_title);
+    $this->talkTitle = $this->randomName();
+    variable_set('talk_page', $this->talkTitle);
 
     // Create and login a user with the appropriate permissions.
     $permissions = array('access content', 'access comments', 'post comments', 'post comments without approval');
@@ -45,8 +38,8 @@ class TalkTests extends DrupalWebTestCase {
   }
 
   /**
-   * Now, an actual test!
-   * This test will post a comment in our talk-nodetype, and make sure it shows up on the
+   * Post a comment in our talk node type and make sure it shows up on the talk
+   * page.
    */
   function testTalkCommentAppears() {
     // Create a node to test with.
