@@ -234,6 +234,10 @@ function talk_theme() {
       'template' => 'talkpage',
       'arguments' => array('node' => NULL, 'add_comments' => NULL),
     ),
+    'talk_comments' => array(
+      'function' => 'theme_talk_comments',
+      'arguments' => array('node' => NULL),
+    ),
   );
 }
 
@@ -263,11 +267,21 @@ function template_preprocess_talkpage(&$variables) {
     }
   }
 
-  $comments = comment_render($node, 0);
+  $comments = theme('talk_comments', $node);
 
   $variables['redisplay'] = $redisplay;
   $variables['comment_link'] = $comment_link;
   $variables['comments'] = $comments;
+}
+
+/**
+ *  A theme function to provide flexible rendering of the comments.
+ *
+ *  @param $node
+ *    The node whose talk page is being displayed.
+ */
+function theme_talk_comments($node) {
+  return comment_render($node, 0);
 }
 
 /**
