@@ -92,6 +92,13 @@ function talk_admin_form() {
  * @return string
  */
 function talk_title($node = NULL, $type = 'tab') {
+  return theme('talk_title', $node, $type);
+}
+
+/**
+ * Theme function to create a talk title.
+ */
+function theme_talk_title($node, $type) {
   $title = variable_get('talk_'. $type, t('Talk'));
   if (module_exists('token') && isset($node->nid)) {
     global $user;
@@ -237,6 +244,10 @@ function talk_theme() {
     'talk_comments' => array(
       'function' => 'theme_talk_comments',
       'arguments' => array('node' => NULL),
+    ),
+    'talk_title' => array(
+      'function' => 'theme_talk_title',
+      'arguments' => array('node' => NULL, 'type' => 'tab'),
     ),
   );
 }
