@@ -28,13 +28,13 @@ class TalkTests extends DrupalWebTestCase {
     variable_set('comment_preview_'. $node_type->type, COMMENT_PREVIEW_OPTIONAL);
 
     // Set the talk title to something unique.
-    $this->talkTitle = $this->randomName() .' [node_comment_count]';
+    $this->talkTitle = $this->randomName();
     variable_set('talk_page', $this->talkTitle);
 
-    $this->talkLink = $this->randomName() .' [unread_comment_count]';
+    $this->talkLink = $this->randomName();
     variable_set('talk_link', $this->talkLink);
 
-    $this->talkTab = $this->randomName() .' [unread_comment_count]';
+    $this->talkTab = $this->randomName();
     variable_set('talk_tab', $this->talkTab);
 
     // Create and login a user with the appropriate permissions.
@@ -70,13 +70,13 @@ class TalkTests extends DrupalWebTestCase {
     // Make the actual assertions here.
     $this->assertText($subject, t('Make sure that the subject of the comment appears'));
     $this->assertText($comment, t('Make sure the body of the comment appears'));
-    $this->assertText(str_replace('[node_comment_count]', 1, $this->talkTitle), t('Make sure the talk title appears @title', array('@title' => str_replace('[node_comment_count]', 1, $this->talkTitle))));
+    $this->assertText($this->talkTitle, t('Make sure the talk title appears @title', array('@title' => str_replace('[node_comment_count]', 1, $this->talkTitle))));
 
     // Confirm that the link and tab are as they should be.
     $this->drupalGet('node/'. $node->nid);
-    $this->assertText(str_replace('[unread_comment_count]', 0, $this->talkLink), t('Make sure the talk link appears @title', array('@title' => str_replace('[unread_comment_count]', 0, $this->talkLink))));
+    $this->assertText($this->talkLink, t('Make sure the talk link appears @title', array('@title' => str_replace('[unread_comment_count]', 0, $this->talkLink))));
 
-    $this->assertText(str_replace('[unread_comment_count]', 0, $this->talkTab), t('Make sure the talk tab appears @title', array('@title' => str_replace('[unread_comment_count]', 0, $this->talkTab))));
+    $this->assertText($this->talkTab, t('Make sure the talk tab appears @title', array('@title' => str_replace('[unread_comment_count]', 0, $this->talkTab))));
 
   }
 }
