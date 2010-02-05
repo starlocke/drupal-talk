@@ -1,0 +1,106 @@
+# Japanese translation of Talk (6.x-1.6)
+# Copyright (c) 2010 by the Japanese translation team
+# Generated from files:
+#  talk.module,v 1.6.2.14 2009/08/19 02:39:11 cwgordon7
+#  talk.install,v 1.1.2.4 2009/07/15 22:21:08 greggles
+#  talk.info,v 1.2 2007/12/31 01:13:44 cwgordon7
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Talk (6.x-1.6)\n"
+"POT-Creation-Date: 2010-02-05 21:33+0000\n"
+"PO-Revision-Date: 2010-02-05 02:12+0000\n"
+"Language-Team: Japanese\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n!=1);\n"
+
+#: talk.module:144
+msgid "Jump to the first comment of this posting."
+msgstr "この投稿の最初のコメントにジャンプ"
+
+#: talk.module:153,258,261
+msgid "Add new comment"
+msgstr "新しいコメントの追加"
+
+#: talk.module:15
+msgid ""
+"The talk module gives you the option to display comments on a seperate "
+"tab. The option is per content type and can be set in the workflow "
+"options of a content type."
+msgstr "ノートのモジュールを使ったらノートのページのタブにコメントを見せられます。コンテンツのタイプごとのオプションはコンテンツのタイプのページのワークフローの設定にあります。"
+
+#: talk.module:59
+msgid "Title of the \"talk\" page"
+msgstr "ノートのページのタイトル"
+
+#: talk.module:95; talk.install:22; talk.info:0
+msgid "Talk"
+msgstr "ノート"
+
+#: talk.module:192
+msgid "Display comments on separate talk page"
+msgstr "ノートのページのタブにコメントを見せます"
+
+#: talk.module:193
+msgid "Talk pages:"
+msgstr "ノートのページ："
+
+#: talk.info:0
+msgid "Display comments on a seperate talk page"
+msgstr "ノートのページのタブにコメントを見せます"
+
+#: talk.module:36
+msgid "Talk page"
+msgstr "ノートのページ"
+
+#: talk.module:37
+msgid "Configure settings for the talk page."
+msgstr "ノートのページの設定を行います。"
+
+#: talk.module:61
+msgid "If token is enabled you can use tokens like [title] or [nid]"
+msgstr ""
+"トークンモジュールを使ったらトークンを使えます。とくに "
+"[title] か [nid] は有用だかもしれません。"
+
+#: talk.module:65
+msgid "Link from the node \"links\" to the \"talk\" page"
+msgstr "ノードのリンクからノートのページへのリンク"
+
+#: talk.module:67
+msgid ""
+"If token is enabled you can use tokens like [title] or [nid]. Leave "
+"blank to disable."
+msgstr ""
+"トークンモジュールを使ったらトークンを使えます。とくに "
+"[title] か [nid] "
+"は有用だかもしれません。空欄の場合は無効。"
+
+#: talk.module:71
+msgid "Link from the node \"tab\" to the \"talk\" page"
+msgstr "ノードのタブからノートのページへのリンク"
+
+#: talk.module:73
+msgid "If token is enabled you can use tokens like [title] or [nid]."
+msgstr ""
+"トークンモジュールを使ったらトークンを使えます。とくに "
+"[title] か [nid] は有用だかもしれません。"
+
+#: talk.module:77
+msgid "Display a \"talk\" page if there are no comments"
+msgstr "コメントがなければノートのページを見せます。"
+
+#: talk.module:79
+msgid ""
+"If the talk page is shown when there are no comments, users will be "
+"able to add new comments from the talk page even when there are no "
+"comments; otherwise, comments will have to be added in a different "
+"method, such as via the \"add new comment\" link on nodes."
+msgstr "コメントがないノートのページを見せたらユーザはノートのページで新しいコメントの追加できます。しかしコメントがないノートのページを見せなかったらノードの「新しいコメント」のリンクだけ新しいコメントの追加できます。"
+
+#: talk.module:280
+msgid "The comment view url (Talk compatible)."
+msgstr "コメント表示のURL（ノートのページ）"
+
