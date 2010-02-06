@@ -12,7 +12,7 @@
 function talk_help($path, $arg) {
   switch ($path) {
     case 'admin/help#talk':
-      $output = '<p>'. t('The talk module gives you the option to display comments on a seperate tab. The option is per content type and can be set in the workflow options of a content type. You can control the text that shows in the tab, title, and link to the "talk" page.  You may use tokens in the patterns you set such as [title-raw], [node_comment_count], or [unread_comment_count].') .'</p>';
+      $output = '<p>'. t('The talk module gives you the option to display comments on a separate tab. The option is per content type and can be set in the workflow options of a content type. You can control the text that shows in the tab, title, and link to the "talk" page.  You may use tokens in the patterns you set such as [title-raw], [node_comment_count], or [unread_comment_count].') .'</p>';
       return $output;
   }
 }
