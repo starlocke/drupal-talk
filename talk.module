@@ -56,27 +56,27 @@ function talk_admin_form() {
   $form = array();
   $form['talk_page'] = array(
     '#type' => 'textfield',
-    '#title' => t('Title of the "talk" page'),
+    '#title' => 'Title of the "talk" page',
     '#default_value' => talk_title(NULL, 'page'),
-    '#description' => t('If token is enabled, you can use tokens like [title-raw] or [nid].'),
+    '#description' => 'If token is enabled, you can use tokens like [title-raw] or [nid].',
   );
   $form['talk_link'] = array(
     '#type' => 'textfield',
     '#title' => t('Link from the node "links" to the "talk" page'),
     '#default_value' => talk_title(NULL, 'link'),
-    '#description' => t('If token is enabled, you can use tokens like [title-raw] or [nid]. Leave blank to disable.'),
+    '#description' => 'If token is enabled, you can use tokens like [title-raw] or [nid]. Leave blank to disable.',
   );
   $form['talk_tab'] = array(
     '#type' => 'textfield',
-    '#title' => t('Link from the node "tab" to the "talk" page'),
+    '#title' => 'Link from the node "tab" to the "talk" page',
     '#default_value' => talk_title(NULL, 'tab'),
-    '#description' => t('If token is enabled, you can use tokens like [title-raw] or [nid].'),
+    '#description' => 'If token is enabled, you can use tokens like [title-raw] or [nid].',
   );
   $form['talk_page_no_comments'] = array(
     '#type' => 'checkbox',
-    '#title' => t('Display a "talk" page if there are no comments'),
+    '#title' => 'Display a "talk" page if there are no comments',
     '#default_value' => variable_get('talk_page_no_comments', TRUE),
-    '#description' => t('If the talk page is shown when there are no comments, users will be able to add new comments from the talk page even when there are no comments; otherwise, comments will have to be added in a different method, such as via the "add new comment" link on nodes.'),
+    '#description' => 'If the talk page is shown when there are no comments, users will be able to add new comments from the talk page even when there are no comments; otherwise, comments will have to be added in a different method, such as via the "add new comment" link on nodes.',
   );
 
   return system_settings_form($form);
