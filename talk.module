@@ -137,7 +137,7 @@ function talk_nodeapi(&$node, $op) {
  * Implementation of hook_link().
  */
 function talk_link($type, $node = NULL, $teaser = FALSE) {
-  if ($type == 'node' && talk_activated($node->type) && user_access('access comments') && _talk_node_comment_value($node)) {
+  if ($type == 'node' && talk_activated($node->type) && user_access('access comments') && _talk_node_comment_value($node) && (arg(0) != 'comment' || arg(1) != 'reply')) {
     $result = array();
 
     // If there are comments, display "Talk page (X comments)" link to talk page.
@@ -181,11 +181,8 @@ function talk_link($type, $node = NULL, $teaser = FALSE) {
  * Implementation of hook_link_alter().
  */
 function talk_link_alter(&$links, $node) {
+  unset($links['comment_add']);
   // Removes all "Add a comment" links from the comment form page.
-  if (arg(0) == 'comment' && arg(1) == 'reply') {
-    unset($links['comment_add']);
-    unset($links['talk_add']);
-  }
 }
 
 /**
