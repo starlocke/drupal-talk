@@ -1,4 +1,3 @@
-; $Id$
 name = Talk
 description = Display comments on a separate talk page.
 core = "6.x"

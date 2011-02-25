@@ -1,5 +1,4 @@
 <?php
-// $Id$
 
 class TalkTests extends DrupalWebTestCase {
   protected $talkType = '';
