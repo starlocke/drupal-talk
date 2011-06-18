@@ -1,4 +1,5 @@
 name = Talk
 description = Display comments on a separate talk page.
-core = "6.x"
+core = 7.x
 dependencies[] = comment
+files[] = talk.test

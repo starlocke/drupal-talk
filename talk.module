@@ -6,7 +6,7 @@
  */
 
 /**
- * Implementation of hook_help().
+ * Implements hook_help().
  */
 function talk_help($path, $arg) {
   switch ($path) {
@@ -31,7 +31,7 @@ function talk_menu() {
     'type' => MENU_LOCAL_TASK,
     'weight' => 1,
   );
-  $items['admin/settings/talk'] = array(
+  $items['admin/config/content/talk'] = array(
     'title' => 'Talk page',
     'description' => 'Configure settings for the talk page.',
     'page callback' => 'drupal_get_form',
@@ -45,6 +45,7 @@ function talk_menu() {
  * Helper item for talk_menu: access callback.
  */
 function _talk_access($node) {
+  return TRUE;
   return ($node->nid && _talk_node_comment_value($node) && talk_activated($node->type) && user_access('access comments') && node_access('view', $node) && (variable_get('talk_page_no_comments', TRUE) || $node->comment_count));
 }
 
@@ -53,6 +54,7 @@ function _talk_access($node) {
  */
 function talk_admin_form() {
   $form = array();
+
   $form['talk_page'] = array(
     '#type' => 'textfield',
     '#title' => t('Title of the "talk" page'),
@@ -91,13 +93,15 @@ function talk_admin_form() {
  * @return string
  */
 function talk_title($node = NULL, $type = 'tab') {
-  return theme('talk_title', $node, $type);
+  return theme('talk_title', array('node' => $node, 'type' => $type));
 }
 
 /**
  * Theme function to create a talk title.
  */
-function theme_talk_title($node, $type) {
+function theme_talk_title($variables) {
+  $node = $variables['node'];
+  $type = $variables['type'];
   $title = variable_get('talk_'. $type, t('Talk'));
   if (module_exists('token') && isset($node->nid)) {
     global $user;
@@ -111,85 +115,71 @@ function theme_talk_title($node, $type) {
  */
 function talk_handle($node) {
   drupal_set_title(talk_title($node, 'page'));
-  $add_comments = _talk_node_comment_value($node) == COMMENT_NODE_READ_WRITE && user_access('post comments');
-  return theme('talkpage', $node, $add_comments);
+  $add_comments = _talk_node_comment_value($node) == COMMENT_NODE_OPEN && user_access('post comments');
+  return theme('talkpage', array('node' => $node, 'add_comments' => $add_comments));
 }
 
 /**
- * Implementation of hook_nodeapi().
+ * Implements hook_node_load().
  */
-function talk_nodeapi(&$node, $op) {
-  switch ($op) {
-    case 'load':
-      if (talk_activated($node->type) && arg(0) == 'node' && !arg(2)) {
-        // Overwrite setting of comment module and set comments for this node to disabled.
-        // This prevents the comments of being displayed.
-        $output['comment_original_value'] = $node->comment;
-        $output['comment'] = 0;
-        return $output;
-      }
-      break;
+function talk_node_load($nodes, $types) {
+  foreach ($nodes as &$node) {
+    if (talk_activated($node->type) && arg(0) == 'node' && !arg(2)) {
+      // Overwrite setting of comment module and set comments for this node to disabled.
+      // This prevents the comments of being displayed.
+      $node->comment_original_value = $node->comment;
+      $node->comment = 0;
+    }
   }
 }
 
 /**
- * Implementation of hook_link().
+ * Implements hook_node_view().
  */
-function talk_link($type, $node = NULL, $teaser = FALSE) {
-  if ($type == 'node' && talk_activated($node->type) && user_access('access comments') && _talk_node_comment_value($node) && (arg(0) != 'comment' || arg(1) != 'reply')) {
-    $result = array();
-
-    // If there are comments, display "Talk page (X comments)" link to talk page.
-    if ($node->comment_count) {
-      $title = talk_title($node, 'link');
-      if (!empty($title)) {
-        $result['talk_comments'] = array(
-          'title' => $title,
-          'href' => 'node/'. $node->nid .'/talk',
-          'attributes' => array(
-            'title' => t('Jump to the first comment of this posting.'),
-          ),
-        );
-      }
+function talk_node_view($node, $view_mode, $langcode) {
+  global $conf;
+  $clone = clone($node);
+  $clone->comment = _talk_node_comment_value($clone);
+  $recover = FALSE;
+  if (array_key_exists('comment_form_location_' . $node->type, $conf)) {
+    $original_setting = $conf['comment_form_location_' . $node->type];
+    $recover = TRUE;
+  }
+  $conf['comment_form_location_' . $node->type] = COMMENT_FORM_SEPARATE_PAGE;
+  comment_node_view($clone, $view_mode, $langcode);
+  if ($recover) {
+    $conf['comment_form_location_' . $node->type] = $original_setting;
+  }
+  else {
+    unset($conf['comment_form_location_' . $node->type]);
+  }
+  $links = $clone->content['links']['comment']['#links'];
+  $node->content['links']['comment'] = array(
+    '#theme' => 'links__node__comment__talk',
+    '#attributes' => array(
+      'class' => array('links', 'inline'),
+    ),
+  );
+  foreach ($links as $link) {
+    if ($link['href'] == 'node/' . $node->nid) {
+      $link['href'] .= '/talk';
     }
-    // If no comments exist, add the "Add new comment" link.
-    elseif (_talk_node_comment_value($node) == COMMENT_NODE_READ_WRITE) {
-      if (user_access('post comments')) {
-        $result['talk_add'] = array(
-          'title' => t('Add new comment'),
-          'fragment' => 'comment-form',
-        );
-        if (variable_get('comment_form_location_'. $node->type, COMMENT_FORM_SEPARATE_PAGE) == COMMENT_FORM_SEPARATE_PAGE) {
-          $result['talk_add']['href'] = 'comment/reply/'. $node->nid;
-        }
-        else {
-          $result['talk_add']['href'] = 'node/'. $node->nid .'/talk';
-        }
-      }
-      else {
-        $result['talk_forbidden']['title'] = theme('comment_post_forbidden', $node);
-        $result['talk_forbidden']['html'] = TRUE;
-      }
-    }
-
-    return $result;
+    $node->content['links']['comment']['#links'][] = $link;
+  }
+  if (_talk_access($node)) {
+    $node->content['links']['comment']['#links'][] = array(
+      'href' => 'node/' . $node->nid . '/talk',
+      'title' => talk_title($node, 'link'),
+    );
   }
 }
 
 /**
- * Implementation of hook_link_alter().
- */
-function talk_link_alter(&$links, $node) {
-  unset($links['comment_add']);
-  // Removes all "Add a comment" links from the comment form page.
-}
-
-/**
- * Implementation of hook_form_alter().
+ * Implements hook_form_alter().
  */
 function talk_form_alter(&$form, $form_state, $form_id) {
   // Add option to comment options of node types.
-  if ($form_id == 'node_type_form' && isset($form['identity']['type']) && module_exists('comment')) {
+  if ($form_id == 'node_type_form' && isset($form['#node_type'])) {
     $form['comment']['comment_talk'] = array(
       '#type' => 'checkbox',
       '#title' => t('Display comments on separate talk page'),
@@ -198,19 +188,20 @@ function talk_form_alter(&$form, $form_state, $form_id) {
       '#default_value' => talk_activated($form['#node_type']->type),
     );
   }
+  if (isset($form['#node']->type) && $form['#form_id'] == 'comment_node_' . $form['#node']->type . '_form') {
+    $form['#submit'][] = 'talk_comment_hijack';
+  }
 }
 
 /**
- * Implementation of hook_comment().
- * Changing the destination to the talk page after posting a comment.
+ * Changes the destination to the talk page after posting a comment.
  */
-function talk_comment($a1, $op) {
-  if ($op == 'insert' || $op == 'update') {
-    $nid = $a1['nid'];
-    $node = node_load($nid);
-    if (talk_activated($node->type)) {
-      $_REQUEST['destination'] = 'node/'. $a1['nid'] .'/talk';
-    }
+function talk_comment_hijack($form, &$form_state) {
+  if (is_array($form_state['redirect'])) {
+    $form_state['redirect'][0] .= '/talk';
+  }
+  else {
+    $form_state['redirect'] .= '/talk';
   }
 }
 
@@ -229,21 +220,19 @@ function _talk_node_comment_value(&$node) {
 }
 
 /**
- * Implementation of hook_theme().
+ * Implementats hook_theme().
  */
 function talk_theme() {
   return array(
     'talkpage' => array(
       'template' => 'talkpage',
-      'arguments' => array('node' => NULL, 'add_comments' => NULL),
+      'variables' => array('node' => NULL, 'add_comments' => NULL),
     ),
     'talk_comments' => array(
-      'function' => 'theme_talk_comments',
-      'arguments' => array('node' => NULL),
+      'variables' => array('node' => NULL),
     ),
     'talk_title' => array(
-      'function' => 'theme_talk_title',
-      'arguments' => array('node' => NULL, 'type' => 'tab'),
+      'variables' => array('node' => NULL, 'type' => NULL),
     ),
   );
 }
@@ -258,26 +247,10 @@ function talk_theme() {
  * @ingroup themeable
  */
 function template_preprocess_talkpage(&$variables) {
-  $add_comments = $variables['add_comments'];
   $node = $variables['node'];
   $variables['title'] = talk_title($node, 'page');
-  $comment_link = '';
-  $redisplay = FALSE;
-
-  if ($add_comments) {
-    if (variable_get('comment_form_location_'. $node->type, COMMENT_FORM_SEPARATE_PAGE) == COMMENT_FORM_SEPARATE_PAGE) {
-      $comment_link = l(t('Add new comment'), 'comment/reply/'. $node->nid, array('fragment' => 'comment-form'));
-    }
-    elseif ($node->comment_count > 1) {
-      $comment_link = l(t('Add new comment'), check_plain($_GET['q']), array('fragment' => 'comment-form'));
-      $redisplay = TRUE;
-    }
-  }
-
-  $comments = theme('talk_comments', $node);
-
-  $variables['redisplay'] = $redisplay;
-  $variables['comment_link'] = $comment_link;
+  $comments = theme('talk_comments', array('node' => $node));
+  $variables['comment_count'] = $node->comment_count;
   $variables['comments'] = $comments;
 }
 
@@ -287,12 +260,15 @@ function template_preprocess_talkpage(&$variables) {
  *  @param $node
  *    The node whose talk page is being displayed.
  */
-function theme_talk_comments($node) {
-  return comment_render($node, 0);
+function theme_talk_comments($variables) {
+  $node = clone($variables['node']);
+  $node->comment = _talk_node_comment_value($node);
+  comment_node_view($node, 'full');
+  return drupal_render($node->content);
 }
 
 /**
- * Implementation of hook_token_list(). Documents the individual
+ * Implements hook_token_list(). Documents the individual
  * tokens handled by the module.
  */
 function talk_token_list($type = 'all') {
@@ -304,7 +280,7 @@ function talk_token_list($type = 'all') {
 }
 
 /**
- * Implementation of hook_token_values().
+ * Implements hook_token_values().
  */
 function talk_token_values($type, $object = NULL, $options = array()) {
   switch ($type) {
