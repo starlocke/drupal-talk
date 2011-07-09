@@ -105,7 +105,7 @@ function theme_talk_title($variables) {
   $title = variable_get('talk_'. $type, t('Talk'));
   if (module_exists('token') && isset($node->nid)) {
     global $user;
-    $title = token_replace_multiple($title, array('global' => NULL, 'user' => $user, 'node' => $node));
+    $title = token_replace($title, array('global' => NULL, 'user' => $user, 'node' => $node));
   }
   return check_plain($title);
 }
