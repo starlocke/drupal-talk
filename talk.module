@@ -54,7 +54,11 @@ function _talk_access($node) {
 function talk_admin_form() {
   $form = array();
 
-  $token_list_link = l(t('View token list'), 'admin/help/token', array('attributes' => array('target'=>'_blank')));
+  if (module_exists('help')) {
+    $token_list_link = l(t('View token list'), 'admin/help/token', array('attributes' => array('target'=>'_blank')));
+  } else {
+    $token_list_link = '';
+  }
 
   $form['talk_page'] = array(
     '#type' => 'textfield',
