@@ -11,7 +11,7 @@
 function talk_help($path, $arg) {
   switch ($path) {
     case 'admin/help#talk':
-      $output = '<p>'. t('The talk module gives you the option to display comments on a separate tab. The option is per content type and can be set in the workflow options of a content type. You can control the text that shows in the tab, title, and link to the "talk" page.  You may use tokens in the patterns you set such as [title-raw], [node_comment_count], or [unread_comment_count].') .'</p>';
+      $output = '<p>'. t('The talk module gives you the option to display comments on a separate tab. The option is per content type and can be set in the workflow options of a content type. You can control the text that shows in the tab, title, and link to the "talk" page.  You may use tokens in the patterns you set such as [node:title], [node:comment-count], or [node:comment-count-new].') .'</p>';
       return $output;
   }
 }
@@ -54,23 +54,29 @@ function _talk_access($node) {
 function talk_admin_form() {
   $form = array();
 
+  if (module_exists('help')) {
+    $token_list_link = l(t('View token list'), 'admin/help/token', array('attributes' => array('target'=>'_blank')));
+  } else {
+    $token_list_link = '';
+  }
+
   $form['talk_page'] = array(
     '#type' => 'textfield',
     '#title' => t('Title of the "talk" page'),
     '#default_value' => talk_title(NULL, 'page'),
-    '#description' => t('If token is enabled, you can use tokens like [title-raw] or [nid].'),
+    '#description' => t('If token is enabled, you can use tokens like [node:title] or [node:nid]. ' . $token_list_link),
   );
   $form['talk_link'] = array(
     '#type' => 'textfield',
     '#title' => t('Link from the node "links" to the "talk" page'),
     '#default_value' => talk_title(NULL, 'link'),
-    '#description' => t('If token is enabled, you can use tokens like [title-raw] or [nid]. Leave blank to disable.'),
+    '#description' => t('If token is enabled, you can use tokens like [node:title] or [node:nid]. Leave blank to disable. ' . $token_list_link),
   );
   $form['talk_tab'] = array(
     '#type' => 'textfield',
     '#title' => t('Link from the node "tab" to the "talk" page'),
     '#default_value' => talk_title(NULL, 'tab'),
-    '#description' => t('If token is enabled, you can use tokens like [title-raw] or [nid].'),
+    '#description' => t('If token is enabled, you can use tokens like [node:title] or [node:nid]. ' . $token_list_link),
   );
   $form['talk_page_no_comments'] = array(
     '#type' => 'checkbox',
