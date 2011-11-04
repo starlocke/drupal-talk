@@ -207,7 +207,7 @@ function talk_form_alter(&$form, $form_state, $form_id) {
       '#default_value' => talk_activated($form['#node_type']->type),
     );
   }
-  if (isset($form['#node']->type) && $form['#form_id'] == 'comment_node_' . $form['#node']->type . '_form') {
+  if (isset($form['#node']->type) && talk_activated($form['#node']->type) && $form['#form_id'] == 'comment_node_' . $form['#node']->type . '_form') {
     $form['#submit'][] = 'talk_comment_hijack';
   }
 }
