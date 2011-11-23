@@ -178,8 +178,10 @@ function talk_node_view($node, $view_mode, $langcode) {
     );
 
     foreach ($links as $link) {
-      if (isset($link['href']) && $link['href'] == 'node/' . $node->nid) {
-        $link['href'] .= '/talk';
+      if(talk_activated($node->type)) {
+        if (isset($link['href']) && $link['href'] == 'node/' . $node->nid) {
+          $link['href'] .= '/talk';
+        }
       }
       $node->content['links']['comment']['#links'][] = $link;
     }
