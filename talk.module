@@ -193,6 +193,12 @@ function talk_node_view($node, $view_mode, $langcode) {
       'title' => talk_title($node, 'link'),
     );
   }
+
+  // Remove comments from page if viewing a node page for a node type for which
+  // Talk is enabled.
+  if (talk_activated($node->type) && arg(0) == 'node' && !arg(2)) {
+    $node->content['comments'] = array();
+  }
 }
 
 /**
