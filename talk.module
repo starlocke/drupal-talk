@@ -291,7 +291,9 @@ function theme_talk_comments($variables) {
       // If comment form on same page as Talk, alter "Add new comment" link
       if (variable_get('comment_form_location_' . $node->type, COMMENT_FORM_BELOW) == COMMENT_FORM_BELOW) {
         $links_comments = &$node->content['links']['comment']['#links'];
-        $links_comments['comment-add']['href'] = "node/$node->nid/talk";
+        if (isset($links_comments['comment-add'])) {
+          $links_comments['comment-add']['href'] = "node/$node->nid/talk";
+        }
       }
     }
   }
